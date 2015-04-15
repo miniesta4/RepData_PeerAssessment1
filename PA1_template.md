@@ -37,14 +37,14 @@ head(ds1)
 Histogram of the total number of steps taken each day.
 
 ```r
-ds2 <- ds1 %>% group_by(date) %>% summarize(freq = sum(steps, na.rm = TRUE))
+ds2 <- ds1 %>% group_by(date) %>% summarize(total = sum(steps, na.rm = TRUE))
 head(ds2)
 ```
 
 ```
 ## Source: local data frame [6 x 2]
 ## 
-##         date  freq
+##         date total
 ## 1 2012-10-01     0
 ## 2 2012-10-02   126
 ## 3 2012-10-03 11352
@@ -54,8 +54,7 @@ head(ds2)
 ```
 
 ```r
-qplot(date, freq, data = ds2, geom = "histogram", stat = "identity",
-      ylab = "Steps", main = "Number of steps taken each day")
+qplot(total, data = ds2, main = "Histogram of steps taken each day")
 ```
 
 ![plot of chunk hist1](figure/hist1-1.png) 
@@ -63,7 +62,7 @@ qplot(date, freq, data = ds2, geom = "histogram", stat = "identity",
 Mean and median total number of steps taken per day.
 
 ```r
-ds2 %>% summarize(avg = mean(freq, na.rm = TRUE), med = median(freq, na.rm = TRUE))
+ds2 %>% summarize(avg = mean(total, na.rm = TRUE), med = median(total, na.rm = TRUE))
 ```
 
 ```
@@ -172,14 +171,14 @@ Histogram of the total number of steps taken each day
 
 ```r
 ## Number of steps taken each day
-ds8 <- ds7 %>% group_by(date) %>% summarize(freq = sum(steps_med))
+ds8 <- ds7 %>% group_by(date) %>% summarize(total = sum(steps_med))
 head(ds8)
 ```
 
 ```
 ## Source: local data frame [6 x 2]
 ## 
-##         date  freq
+##         date total
 ## 1 2012-10-01  1141
 ## 2 2012-10-02   126
 ## 3 2012-10-03 11352
@@ -189,8 +188,7 @@ head(ds8)
 ```
 
 ```r
-qplot(date, freq, data = ds8, geom = "histogram", stat = "identity",
-      ylab = "Steps", main = "Number of steps taken each day")
+qplot(total, data = ds8, main = "Histogram of steps taken each day")
 ```
 
 ![plot of chunk hist2](figure/hist2-1.png) 
@@ -198,7 +196,7 @@ qplot(date, freq, data = ds8, geom = "histogram", stat = "identity",
 Mean and median total number of steps taken per day.
 
 ```r
-ds8 %>% summarize(avg = mean(freq), med = median(freq))
+ds8 %>% summarize(avg = mean(total), med = median(total))
 ```
 
 ```
