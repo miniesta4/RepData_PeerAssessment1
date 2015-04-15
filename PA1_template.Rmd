@@ -1,25 +1,114 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 output: 
-  html_document:
-    keep_md: true
+html_document:
+keep_md: true
 ---
 
+## Loading libraries
+```{r, results="hide"}
+## Load libraries
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+library(ggplot2)
+```
 
 ## Loading and preprocessing the data
-
+```{r}
+unzip ("./activity.zip")
+file <- read.csv("./activity.csv")
+ds1 <- file %>% mutate(date = as.Date(date))
+head(ds1)
+```
 
 
 ## What is mean total number of steps taken per day?
+Histogram of the total number of steps taken each day.
+```{r}
+ds2 <- ds1 %>% group_by(date) %>% summarize(freq = sum(steps, na.rm = TRUE))
+head(ds2)
 
+qplot(date, freq, data = ds2, geom = "histogram", stat = "identity",
+      ylab = "Steps", main = "Number of steps taken each day")
+```
+
+Mean and median total number of steps taken per day.
+```{r}
+ds2 %>% summarize(avg = mean(freq, na.rm = TRUE), med = median(freq, na.rm = TRUE))
+```
 
 
 ## What is the average daily activity pattern?
+Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r}
+ds4 <- ds1 %>% group_by(interval) %>% summarize(avg = mean(steps, na.rm = TRUE))
+head(ds4)
 
+qplot(interval, avg, data = ds4, geom = "line", ylab = "Steps",
+      main = "Average number of steps taken")
+```
+
+5-minute interval, on average across all the days in the dataset, with the maximum number of steps.
+```{r}
+ds4 %>% filter(avg == max(ds4$avg))
+```
 
 
 ## Imputing missing values
+Total number of missing values in the dataset.
+```{r}
+## Missing values in the dataset
+sum(is.na(ds1$steps))
+```
 
 
+Filling in missing values with the median for the 5-min interval.
+```{r}
+## Median for each 5-min interval
+ds5 <- ds1 %>% group_by(interval) %>% summarize(med = median(steps, na.rm = TRUE))
+head(ds5)
+
+## Missing values filling.
+ds6 <- ds1 %>% group_by(interval) %>% mutate(med = median(steps, na.rm = TRUE))
+ds7 <- ds6 %>% mutate(steps_med = ifelse(is.na(steps), med, steps))
+head(ds7)
+```
+
+Histogram of the total number of steps taken each day
+```{r}
+## Number of steps taken each day
+ds8 <- ds7 %>% group_by(date) %>% summarize(freq = sum(steps_med))
+head(ds8)
+
+qplot(date, freq, data = ds8, geom = "histogram", stat = "identity",
+      ylab = "Steps", main = "Number of steps taken each day")
+```
+
+Mean and median total number of steps taken per day.
+```{r}
+ds8 %>% summarize(avg = mean(freq), med = median(freq))
+```
+Mean is higher. Median keeps the same.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+Create a new factor variable.
+```{r}
+## Set locale
+Sys.setlocale("LC_TIME", locale = "en_US.UTF-8")
+
+## Weekdays
+ds10 <- ds7 %>% mutate(weekday = weekdays(date))
+
+## Weekdays as weekend, weekday
+ds11 <- ds10 %>% mutate(wd = as.factor(
+    ifelse(weekday %in% c("Saturday", "Sunday"), "weekend", "weekday")))
+head(ds11)
+```
+Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days.
+```{r}
+## Averaged across all weekday days or weekend
+ds12 <- ds11 %>% group_by(interval, wd) %>% summarize(avg = mean(steps_med))
+head(ds12)
+
+qplot(interval, avg, data = ds12, facets = wd ~ ., geom = "line", ylab = "Steps",
+      main = "Average number of steps taken")
+```
