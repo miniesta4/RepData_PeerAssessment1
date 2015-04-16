@@ -126,6 +126,26 @@ sum(is.na(ds1$steps))
 ## [1] 2304
 ```
 
+Missing values per day.
+
+```r
+ds1 %>% filter(is.na(steps)) %>% group_by(date) %>% summarize(n())
+```
+
+```
+## Source: local data frame [8 x 2]
+## 
+##         date n()
+## 1 2012-10-01 288
+## 2 2012-10-08 288
+## 3 2012-11-01 288
+## 4 2012-11-04 288
+## 5 2012-11-09 288
+## 6 2012-11-10 288
+## 7 2012-11-14 288
+## 8 2012-11-30 288
+```
+
 Select median for the 5-min interval to fill in values.
 
 ```r

@@ -59,6 +59,11 @@ Total number of missing values in the dataset.
 sum(is.na(ds1$steps))
 ```
 
+Missing values per day.
+```{r}
+ds1 %>% filter(is.na(steps)) %>% group_by(date) %>% summarize(n())
+```
+
 Select median for the 5-min interval to fill in values.
 ```{r}
 ## Median for each 5-min interval
