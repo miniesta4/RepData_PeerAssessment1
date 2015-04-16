@@ -126,8 +126,7 @@ sum(is.na(ds1$steps))
 ## [1] 2304
 ```
 
-
-Filling in missing values with the median for the 5-min interval.
+Select median for the 5-min interval to fill in values.
 
 ```r
 ## Median for each 5-min interval
@@ -147,27 +146,40 @@ head(ds5)
 ## 6       25   0
 ```
 
+Time series plot of median 5-min interval.
+
 ```r
-## Missing values filling.
-ds6 <- ds1 %>% group_by(interval) %>% mutate(med = median(steps, na.rm = TRUE))
-ds7 <- ds6 %>% mutate(steps_med = ifelse(is.na(steps), med, steps))
+## Time series plot
+qplot(interval, med, data= ds5, geom = "line", ylab = "Steps",
+      main = "Median 5-minute interval")
+```
+
+![plot of chunk timeseries2](figure/timeseries2-1.png) 
+
+Filling in missing values with the median for the 5-min interval.
+
+```r
+## Missing values filling in
+ds6 <- ds1 %>% group_by(interval) %>% mutate(med = median(steps, na.rm = TRUE)) %>%
+    mutate(steps_med = ifelse(is.na(steps), med, steps))
+ds7 <- ds6 %>% select(date, interval, steps_med)
 head(ds7)
 ```
 
 ```
-## Source: local data frame [6 x 5]
+## Source: local data frame [6 x 3]
 ## Groups: interval
 ## 
-##   steps       date interval med steps_med
-## 1    NA 2012-10-01        0   0         0
-## 2    NA 2012-10-01        5   0         0
-## 3    NA 2012-10-01       10   0         0
-## 4    NA 2012-10-01       15   0         0
-## 5    NA 2012-10-01       20   0         0
-## 6    NA 2012-10-01       25   0         0
+##         date interval steps_med
+## 1 2012-10-01        0         0
+## 2 2012-10-01        5         0
+## 3 2012-10-01       10         0
+## 4 2012-10-01       15         0
+## 5 2012-10-01       20         0
+## 6 2012-10-01       25         0
 ```
 
-Histogram of the total number of steps taken each day
+Histogram of the total number of steps taken each day.
 
 ```r
 ## Number of steps taken each day
@@ -208,7 +220,6 @@ ds8 %>% summarize(avg = mean(total), med = median(total))
 Mean is higher. Median keeps the same.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-Create a new factor variable.
 
 ```r
 ## Set locale
@@ -230,17 +241,18 @@ head(ds11)
 ```
 
 ```
-## Source: local data frame [6 x 7]
+## Source: local data frame [6 x 5]
 ## Groups: interval
 ## 
-##   steps       date interval med steps_med weekday      wd
-## 1    NA 2012-10-01        0   0         0  Monday weekday
-## 2    NA 2012-10-01        5   0         0  Monday weekday
-## 3    NA 2012-10-01       10   0         0  Monday weekday
-## 4    NA 2012-10-01       15   0         0  Monday weekday
-## 5    NA 2012-10-01       20   0         0  Monday weekday
-## 6    NA 2012-10-01       25   0         0  Monday weekday
+##         date interval steps_med weekday      wd
+## 1 2012-10-01        0         0  Monday weekday
+## 2 2012-10-01        5         0  Monday weekday
+## 3 2012-10-01       10         0  Monday weekday
+## 4 2012-10-01       15         0  Monday weekday
+## 5 2012-10-01       20         0  Monday weekday
+## 6 2012-10-01       25         0  Monday weekday
 ```
+
 Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days.
 
 ```r
@@ -267,4 +279,4 @@ qplot(interval, avg, data = ds12, facets = wd ~ ., geom = "line", ylab = "Steps"
       main = "Average number of steps taken")
 ```
 
-![plot of chunk timeseries2](figure/timeseries2-1.png) 
+![plot of chunk timeseries3](figure/timeseries3-1.png) 
