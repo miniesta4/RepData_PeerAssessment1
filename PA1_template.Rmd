@@ -5,8 +5,7 @@ html_document:
 keep_md: true
 ---
 
-## Loading libraries
-```{r, results="hide"}
+```{r, echo = FALSE}
 ## Load libraries
 library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
 library(ggplot2)
@@ -24,10 +23,10 @@ head(ds1)
 ## What is mean total number of steps taken per day?
 Histogram of the total number of steps taken each day.
 ```{r hist1}
-ds2 <- ds1 %>% group_by(date) %>% summarize(total = sum(steps, na.rm = TRUE))
-head(ds2)
+ds2 <- ds1 %>% group_by(date) %>% summarize(total = sum(steps))
+ds2
 
-qplot(total, data = ds2, main = "Histogram of steps taken each day")
+qplot(total, data = ds2, main = "Histogram total steps per day")
 ```
 
 Mean and median total number of steps taken per day.
@@ -40,7 +39,7 @@ ds2 %>% summarize(avg = mean(total, na.rm = TRUE), med = median(total, na.rm = T
 Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 ```{r timeseries1}
 ds4 <- ds1 %>% group_by(interval) %>% summarize(avg = mean(steps, na.rm = TRUE))
-head(ds4)
+ds4
 
 qplot(interval, avg, data = ds4, geom = "line", ylab = "Steps",
       main = "Average number of steps taken")
@@ -68,7 +67,7 @@ Select median for the 5-min interval to fill in values.
 ```{r}
 ## Median for each 5-min interval
 ds5 <- ds1 %>% group_by(interval) %>% summarize(med = median(steps, na.rm = TRUE))
-head(ds5)
+ds5
 ```
 
 Time series plot of median 5-min interval.
@@ -82,25 +81,25 @@ Filling in missing values with the median for the 5-min interval.
 ```{r}
 ## Missing values filling in
 ds6 <- ds1 %>% group_by(interval) %>% mutate(med = median(steps, na.rm = TRUE)) %>%
-    mutate(steps_med = ifelse(is.na(steps), med, steps))
-ds7 <- ds6 %>% select(date, interval, steps_med)
-head(ds7)
+    mutate(steps.med = ifelse(is.na(steps), med, steps)) %>% 
+    select(date, interval, steps.med)
+ds6
 ```
 
 Histogram of the total number of steps taken each day.
 ```{r hist2}
 ## Number of steps taken each day
-ds8 <- ds7 %>% group_by(date) %>% summarize(total = sum(steps_med))
-head(ds8)
+ds8 <- ds6 %>% group_by(date) %>% summarize(total = sum(steps.med))
+ds8
 
-qplot(total, data = ds8, main = "Histogram of steps taken each day")
+qplot(total, data = ds8, main = "Histogram total steps per day")
 ```
 
 Mean and median total number of steps taken per day.
 ```{r}
 ds8 %>% summarize(avg = mean(total), med = median(total))
 ```
-Mean is higher. Median keeps the same.
+Mean becomes lower. Median keeps the same.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 ```{r}
@@ -108,7 +107,7 @@ Mean is higher. Median keeps the same.
 Sys.setlocale("LC_TIME", locale = "en_US.UTF-8")
 
 ## Weekdays
-ds10 <- ds7 %>% mutate(weekday = weekdays(date))
+ds10 <- ds6 %>% mutate(weekday = weekdays(date))
 
 ## Weekdays as weekend, weekday
 ds11 <- ds10 %>% mutate(wd = as.factor(
@@ -119,7 +118,7 @@ head(ds11)
 Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days.
 ```{r timeseries3}
 ## Averaged across all weekday days or weekend
-ds12 <- ds11 %>% group_by(interval, wd) %>% summarize(avg = mean(steps_med))
+ds12 <- ds11 %>% group_by(interval, wd) %>% summarize(avg = mean(steps.med))
 head(ds12)
 
 qplot(interval, avg, data = ds12, facets = wd ~ ., geom = "line", ylab = "Steps",
